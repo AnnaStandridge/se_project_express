@@ -1,14 +1,14 @@
 const ClothingItem = require("../models/clothingitem");
 const { OK, CREATED } = require("../utils/errors");
-const { handleItemHttpError } = require("../utils/errorHandlers");
+const { handleHttpError } = require("../utils/errorHandlers");
 
 function getItems(req, res) {
   ClothingItem.find({})
     .then((items) => {
-      res.status(OK).send(items);
+      res.send(items);
     })
     .catch((err) => {
-      handleItemHttpError(req, res, err);
+      handleHttpError(req, res, err);
     });
 }
 
@@ -21,7 +21,7 @@ function createItem(req, res) {
       res.status(CREATED).send({ data: item });
     })
     .catch((err) => {
-      handleItemHttpError(req, res, err);
+      handleHttpError(req, res, err);
     });
 }
 
@@ -32,7 +32,7 @@ function deleteItem(req, res) {
       res.status(OK).send(item);
     })
     .catch((err) => {
-      handleItemHttpError(req, res, err);
+      handleHttpError(req, res, err);
     });
 }
 
@@ -47,7 +47,7 @@ function likeItem(req, res) {
       res.status(OK).send(like);
     })
     .catch((err) => {
-      handleItemHttpError(req, res, err);
+      handleHttpError(req, res, err);
     });
 }
 
@@ -62,7 +62,7 @@ function dislikeItem(req, res) {
       res.status(OK).send(dislike);
     })
     .catch((err) => {
-      handleItemHttpError(req, res, err);
+      handleHttpError(req, res, err);
     });
 }
 
