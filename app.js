@@ -15,14 +15,15 @@ mongoose.connect(
 const routes = require("./routes/index");
 
 app.use(express.json());
-app.use(routes);
 
 app.use((req, res, next) => {
   req.user = {
-    _id: "650246c6173eca7186f65581",
+    _id: "6513634c6c637d1e2e535c7",
   };
   next();
 });
+
+app.use(routes);
 
 app.listen(PORT, () => {
   console.log(`App listening at port ${PORT}`);
