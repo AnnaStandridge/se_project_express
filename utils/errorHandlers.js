@@ -1,4 +1,10 @@
-const { NOT_FOUND, BAD_REQUEST, INTERNAL_SERVER_ERROR } = require("./errors");
+const {
+  NOT_FOUND,
+  BAD_REQUEST,
+  INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED,
+  FORBIDDEN,
+} = require("./errors");
 
 function handleHttpError(req, res, err) {
   console.error(err);
@@ -11,6 +17,12 @@ function handleHttpError(req, res, err) {
       break;
     case "ValidationError":
       res.status(BAD_REQUEST).send({ message: "data is invalid" });
+      break;
+    case "Unauthorized":
+      res.status(UNAUTHORIZED).send({ message: err.message });
+      break;
+    case "Forbidden":
+      res.status(FORBIDDEN).send({ message: err.message });
       break;
     default:
       res
