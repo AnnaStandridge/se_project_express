@@ -21,6 +21,7 @@ function authorize(req, res, next) {
   } catch (err) {
     console.error(err);
     res.status(UNAUTHORIZED).send({ message: "Authorization required" });
+    return;
   }
 
   req.user = payload;
