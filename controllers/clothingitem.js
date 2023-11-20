@@ -1,18 +1,20 @@
 const ClothingItem = require("../models/clothingitem");
-const { OK, CREATED, FORBIDDEN } = require("../utils/errors");
-const { handleHttpError } = require("../utils/errorHandlers");
+const { OK, CREATED } = require("../utils/errors");
+const NotFoundError = require("../errors/not-found-error");
+const BadRequestError = require("../errors/bad-request-error");
+const ForbiddenError = require("../errors/forbidden-error");
 
-function getItems(req, res) {
+function getItems(req, res, next) {
   ClothingItem.find({})
     .then((items) => {
       res.send(items);
     })
-    .catch((err) => {
-      handleHttpError(req, res, err);
+    .catch((e) => {
+      next(e);
     });
 }
 
-function createItem(req, res) {
+function createItem(req, res, next) {
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
 
@@ -20,32 +22,38 @@ function createItem(req, res) {
     .then((item) => {
       res.status(CREATED).send({ data: item });
     })
-    .catch((err) => {
-      handleHttpError(req, res, err);
+    .catch((e) => {
+      if (e.name === "ValidationError") {
+        next(new BadRequestError("Error from createItem"));
+      } else {
+        next(e);
+      }
     });
 }
 
-function deleteItem(req, res) {
+function deleteItem(req, res, next) {
   ClothingItem.findById(req.params.itemId)
     .orFail()
     .then((item) => {
-      console.log(item);
       if (item.owner.equals(req.user._id)) {
-        return item.deleteOne().then(() => res.send({ item }));
+        return next(
+          new ForbiddenError("You are not authorized to delete this item"),
+        );
       }
-
-      const error = new Error();
-      error.status = FORBIDDEN;
-      error.name = "Forbidden";
-      error.message = "Can only delete own cards";
-      throw error;
+      return item.deleteOne().then(() => res.send({ message: "Item deleted" }));
     })
-    .catch((err) => {
-      handleHttpError(req, res, err);
+    .catch((e) => {
+      if (e.name === "DocumentNotFoundError") {
+        next(new NotFoundError("Error from deleteItem"));
+      } else if (e.name === "CastError") {
+        next(new BadRequestError("Error from deleteIte"));
+      } else {
+        next(e);
+      }
     });
 }
 
-function likeItem(req, res) {
+function likeItem(req, res, next) {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $addToSet: { likes: req.user._id } },
@@ -55,12 +63,18 @@ function likeItem(req, res) {
     .then((like) => {
       res.status(OK).send(like);
     })
-    .catch((err) => {
-      handleHttpError(req, res, err);
+    .catch((e) => {
+      if (e.name === "DocumentNotFoundError") {
+        next(new NotFoundError("Error from likeItem"));
+      } else if (e.name === "CastError") {
+        next(new BadRequestError("Error from likeItem"));
+      } else {
+        next(e);
+      }
     });
 }
 
-function dislikeItem(req, res) {
+function dislikeItem(req, res, next) {
   ClothingItem.findByIdAndUpdate(
     req.params.itemId,
     { $pull: { likes: req.user._id } },
@@ -70,8 +84,14 @@ function dislikeItem(req, res) {
     .then((dislike) => {
       res.status(OK).send(dislike);
     })
-    .catch((err) => {
-      handleHttpError(req, res, err);
+    .catch((e) => {
+      if (e.name === "DocumentNotFoundError") {
+        next(new NotFoundError("Error from dislikeItem"));
+      } else if (e.name === "CastError") {
+        next(new BadRequestError("Error from dislikeItem"));
+      } else {
+        next(e);
+      }
     });
 }
 

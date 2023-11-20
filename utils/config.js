@@ -1,5 +1,5 @@
-const JWT_SECRET = "Sprint13";
+// const JWT_SECRET = "Sprint13";
 
-module.exports = {
-  JWT_SECRET,
-};
+// module.exports = {
+//  JWT_SECRET,
+//};
