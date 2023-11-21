@@ -35,7 +35,7 @@ function deleteItem(req, res, next) {
   ClothingItem.findById(req.params.itemId)
     .orFail()
     .then((item) => {
-      if (item.owner.equals(req.user._id)) {
+      if (!item.owner.equals(req.user._id)) {
         return next(
           new ForbiddenError("You are not authorized to delete this item"),
         );
